@@ -9,7 +9,8 @@ namespace Entities.DTO.User
         public string Login { get; set; }
 
         [Required]
-        [StringLength(8)]
+        [MinLength(8)]
+        [MaxLength(8)]
         public string Password { get; set; }
     }
 }

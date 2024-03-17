@@ -21,8 +21,7 @@ namespace Entities.Configuration
                     LastName = "Ergashov",
                     Login = "admin123",
                     Password = "admin123",
-                    Role = RoleEnum.Admin,
-                    IsDeleted = false
+                    Role = RoleEnum.Admin
                 },
                 new User
                 {
@@ -31,8 +30,7 @@ namespace Entities.Configuration
                     LastName = "Khamidov",
                     Login = "user1234",
                     Password = "user1234",
-                    Role = RoleEnum.User,
-                    IsDeleted = false
+                    Role = RoleEnum.User
                 });
         }
     }

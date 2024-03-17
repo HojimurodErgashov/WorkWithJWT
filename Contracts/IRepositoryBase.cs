@@ -12,8 +12,8 @@ namespace Contracts
     {
         IQueryable<T> FindAll(bool tracking);
         IQueryable<T> FindByCondition(Expression<Func<T , bool >> expression , bool tracking);
-        T Create(T entity);
+        Task<T> Create(T entity);
         T Update(T entity);
-        T Delete(T entity);
+        void Delete(T entity);
     }
 }
