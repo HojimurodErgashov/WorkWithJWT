@@ -95,10 +95,9 @@ namespace CrudLearn.Controllers
             return NotFound();
         }
 
-
         [AllowAnonymous]
         [HttpGet("{id:Guid}")]
-        public async Task<ActionResult<User>> GetByIdAsync(Guid id , CancellationToken cancellationToken)
+        public async Task<ActionResult<UserDTO>> GetByIdAsync(Guid id , CancellationToken cancellationToken)
         {
             User user = await repositoryManager.User.GetById(id, false, cancellationToken);
 
@@ -152,5 +151,37 @@ namespace CrudLearn.Controllers
             return Ok(userDTOs);
 
         }
+
+        [AllowAnonymous]
+        [HttpPut("{id:Guid}")]
+        public async Task<ActionResult<UserDTO>> UpdateAsync([FromBody] UserDTO userDTO, Guid id, CancellationToken cancellationToken)
+        {
+            if (userDTO == null)
+            {
+                return BadRequest("Siz hech qanday ma'lumot kiritmadingzi!");
+            }
+
+            User user = await repositoryManager.User.GetById(id, false, cancellationToken);
+
+            if (user == null)
+            {
+                return NotFound("Bunday id da user mavjud emas");
+            }
+
+            MapUserDTOFieldsToUserFields(user , userDTO);
+
+            user = await repositoryManager.User.UpdateAsync(user);
+            await repositoryManager.SaveAsync();
+            userDTO = mapper.Map<UserDTO>(user);
+            return userDTO;
+        }
+
+        private static void MapUserDTOFieldsToUserFields(User user , UserDTO userDTO)
+        {
+            user.FirstName = userDTO.FirstName;
+            user.LastName = userDTO.LastName;
+            user.Login = userDTO.Login;
+        }
+
     }
 }

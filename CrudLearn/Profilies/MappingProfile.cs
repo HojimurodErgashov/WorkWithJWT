@@ -10,6 +10,7 @@ namespace CrudLearn.Profilies
         {
             CreateMap<User , UserDTO>();
             CreateMap<UserCreateDTO , User>();
+            CreateMap<UserDTO, User>();
         }
     }
 }
