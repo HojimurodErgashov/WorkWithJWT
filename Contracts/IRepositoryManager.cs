@@ -8,6 +8,5 @@ namespace Contracts
     {
         IUserRepository User { get; }
         Task SaveAsync();
-        void Save();
     }
 }

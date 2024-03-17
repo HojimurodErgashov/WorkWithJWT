@@ -19,18 +19,19 @@ namespace Repository
                 throw new ArgumentNullException(nameof(repositoryContext));
         }
 
-        public T Create(T entity)
+        public async Task<T> Create(T entity)
         {
-            throw new NotImplementedException();
+            await _repositoryContext.Set<T>().AddAsync(entity);
+            return entity;
         }
 
-        public T Delete(T entity)
+        public virtual void Delete(T entity)
         {
-            throw new NotImplementedException();
+            _repositoryContext.Set<T>().Remove(entity);
         }
 
         public virtual IQueryable<T> FindAll(bool tracking) =>
-                           !tracking?
+                           !tracking ?
                              _repositoryContext.Set<T>().AsNoTracking() :
                              _repositoryContext.Set<T>();
 
@@ -44,7 +45,8 @@ namespace Repository
 
         public T Update(T entity)
         {
-            throw new NotImplementedException();
+            _repositoryContext.Entry(entity).State = EntityState.Modified;
+            return entity;
         }
     }
 }

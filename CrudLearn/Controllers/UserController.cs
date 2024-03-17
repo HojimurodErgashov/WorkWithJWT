@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Contracts;
+using CrudLearn.Attributes;
 using Entities.DTO.User;
 using Entities.Model;
 using Microsoft.AspNetCore.Authorization;
@@ -7,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -18,6 +20,7 @@ namespace CrudLearn.Controllers
     [Authorize]
     [Route("api/user")]
     [ApiController]
+    [ServiceFilter(typeof(ValidationFilterAttribute))]
     public class UserController : ControllerBase
     {
         private readonly IRepositoryManager repositoryManager;
@@ -75,6 +78,79 @@ namespace CrudLearn.Controllers
             }
 
             return Ok(userAuthInfoDTO);
+        }
+
+
+        [AllowAnonymous]
+        [HttpDelete("{id:Guid}")]
+        public async Task<ActionResult<UserDTO>> DeleteAsync(Guid id)
+        {
+            User user = await repositoryManager.User.DeleteAsync(id);
+            if (user != null)
+            {
+                await repositoryManager.SaveAsync();
+                UserDTO userDTO = mapper.Map<UserDTO>(user);
+                return userDTO;
+            }
+            return NotFound();
+        }
+
+
+        [AllowAnonymous]
+        [HttpGet("{id:Guid}")]
+        public async Task<ActionResult<User>> GetByIdAsync(Guid id , CancellationToken cancellationToken)
+        {
+            User user = await repositoryManager.User.GetById(id, false, cancellationToken);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(mapper.Map<UserDTO>(user));
+        }
+
+
+
+        [AllowAnonymous]
+        [HttpPost("create")]
+        public async Task<ActionResult<UserDTO>> CreateAsync([FromBody]UserCreateDTO userCreateDTO)
+        {
+            if(userCreateDTO == null)
+            {
+                return BadRequest();
+            }
+
+            User user = mapper.Map<User>(userCreateDTO);
+            user.Role = RoleEnum.User;
+            await repositoryManager.User.CreateAsync(user);
+            await repositoryManager.SaveAsync();
+            UserDTO userDTO = mapper.Map<UserDTO>(user);
+            return Ok(userDTO);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("getAll")]
+        public ActionResult<List<UserDTO>> GetAll()
+        {
+            List<UserDTO> userDTOs = new List<UserDTO>();
+            List<User> users = repositoryManager.User.GetAll();
+            if(users == null)
+            {
+                return NoContent();
+            }
+
+            foreach(var user in users)
+            {
+                if(user == null)
+                {
+                    continue;
+                }
+                var userDTO = mapper.Map<UserDTO>(user);
+                userDTOs.Add(userDTO);
+            }
+            return Ok(userDTOs);
+
         }
     }
 }
