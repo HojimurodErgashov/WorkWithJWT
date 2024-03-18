@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 using System.Threading;
@@ -80,8 +81,14 @@ namespace CrudLearn.Controllers
             return Ok(userAuthInfoDTO);
         }
 
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        [HttpGet("logOut")]
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            return NotFound();
+        }
 
-        [AllowAnonymous]
         [HttpDelete("{id:Guid}")]
         public async Task<ActionResult<UserDTO>> DeleteAsync(Guid id)
         {
@@ -95,7 +102,6 @@ namespace CrudLearn.Controllers
             return NotFound();
         }
 
-        [AllowAnonymous]
         [HttpGet("{id:Guid}")]
         public async Task<ActionResult<UserDTO>> GetByIdAsync(Guid id , CancellationToken cancellationToken)
         {
@@ -108,8 +114,6 @@ namespace CrudLearn.Controllers
 
             return Ok(mapper.Map<UserDTO>(user));
         }
-
-
 
         [AllowAnonymous]
         [HttpPost("create")]
@@ -128,7 +132,6 @@ namespace CrudLearn.Controllers
             return Ok(userDTO);
         }
 
-        [AllowAnonymous]
         [HttpGet("getAll")]
         public ActionResult<List<UserDTO>> GetAll()
         {
@@ -152,7 +155,6 @@ namespace CrudLearn.Controllers
 
         }
 
-        [AllowAnonymous]
         [HttpPut("{id:Guid}")]
         public async Task<ActionResult<UserDTO>> UpdateAsync([FromBody] UserDTO userDTO, Guid id, CancellationToken cancellationToken)
         {

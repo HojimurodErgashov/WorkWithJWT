@@ -1,10 +1,12 @@
-using Contracts;
+    using Contracts;
 using CrudLearn.Attributes;
 using Entities;
 using Entities.DTO.User;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -13,6 +15,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Repository;
+using System;
 using System.Text;
 
 namespace CrudLearn
@@ -29,12 +32,13 @@ namespace CrudLearn
         public void ConfigureServices(IServiceCollection services)
         {
             //Jwt
+
             IConfigurationSection appSettingSection = Configuration.GetSection("AppSettings");
             string connectionString = Configuration.GetConnectionString("DefaultConnection");
-
             services.Configure<AppSettings>(appSettingSection);
             AppSettings appSettings = appSettingSection.Get<AppSettings>();
             var secretKey = Encoding.ASCII.GetBytes(appSettings.SecretKey);
+                
             //**
             services.AddAuthentication(x =>
             {
@@ -56,6 +60,32 @@ namespace CrudLearn
                 };
 
             });
+            /*
+                        services.AddAuthentication(options =>
+                        {
+                            options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                            options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+                            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                        }).AddCookie(options =>
+                        {
+                            options.Cookie.Name = "MyProjectCookie";
+                            options.ExpireTimeSpan = TimeSpan.FromMinutes(30); // Set your desired expiration time (e.g., 30 minutes)
+                            options.SlidingExpiration = true;
+                        }).AddJwtBearer(options =>
+                        {
+                            options.RequireHttpsMetadata = false;
+                            options.SaveToken = true;
+                            options.TokenValidationParameters = new TokenValidationParameters
+                            {
+                                ValidateIssuer = false,
+                                ValidateAudience = false,
+                                IssuerSigningKey = new SymmetricSecurityKey(secretKey),
+                                ValidateLifetime = true,
+                                ClockSkew = TimeSpan.Zero,
+                            };
+                        });*/
+
+
             //*****************************
 
 
@@ -132,6 +162,19 @@ namespace CrudLearn
 
             app.UseHttpsRedirection();
             app.UseRouting();
+
+/*          app.UseCookiePolicy();
+            app.UseSession();
+            app.Use(async (context, next) =>
+            {
+                var JWToken = context.Session.GetString("JWToken");
+                if (!string.IsNullOrEmpty(JWToken))
+                {
+                    context.Request.Headers.Add("Authorization", "Bearer " + JWToken);
+                }
+                await next();
+            });*/
+
             app.UseAuthentication();
             app.UseAuthorization();
 
